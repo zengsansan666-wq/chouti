@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>西综抽题</title>
+  <style>
+    :root {
+      --bg:     #1a1612; --bg2: #221e18; --bg3: #2c261e;
+      --border: #3d342a; --amber: #e8a84c; --amber2: #c4893a;
+      --red: #d95f4b; --green: #6aaa7e; --blue: #5a9fd4;
+      --text: #e8dece; --dim: #9a8a78; --faint: #5a4e44;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'PingFang SC','Noto Sans SC',sans-serif;
+      min-height: 100vh;
+      background-image: radial-gradient(ellipse 60% 40% at 70% 10%, rgba(232,168,76,0.07) 0%, transparent 60%);
+    }
+    .wrap { max-width: 660px; margin: 0 auto; padding: 24px 16px 80px; }
+
+    /* ── HEADER ── */
+    header {
+      border-bottom: 1px solid var(--border); padding-bottom: 14px;
+      margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;
+    }
+    header h1 { font-size: 19px; font-weight: 700; color: var(--amber); letter-spacing: 2px; }
+    header p  { font-size: 11px; color: var(--faint); margin-top: 3px; }
+    .save-badge {
+      font-size: 11px; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 20px; padding: 3px 10px; color: var(--faint); white-space: nowrap;
+    }
+    .save-badge.ok { color: var(--green); border-color: #2a4a32; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 8px 14px; border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      font-family: inherit; transition: all .15s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-amber  { background: var(--amber); color: #1a1612; }
+    .btn-amber:hover { background: #f0b85c; }
+    .btn-outline{ background: transparent; color: var(--amber2); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--amber2); background: rgba(232,168,76,0.06); }
+    .btn-ghost  { background: var(--bg3); color: var(--dim); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); }
+    .btn-green  { background: rgba(106,170,126,0.15); color: var(--green); border: 1px solid #2a4a32; }
+    .btn-green:hover { background: rgba(106,170,126,0.25); }
+    .btn-red    { background: rgba(217,95,75,0.12); color: var(--red); border: 1px solid #5a2a20; }
+    .btn-red:hover { background: rgba(217,95,75,0.22); }
+    .btn-sm     { padding: 5px 10px; font-size: 12px; }
+    .btn-xs     { padding: 3px 8px; font-size: 11px; }
+    .btn-danger { background: transparent; color: #7a3a30; border: 1px solid #3d2820; font-size: 12px; padding: 5px 10px; }
+    .btn-danger:hover { color: var(--red); border-color: var(--red); background: rgba(217,95,75,0.08); }
+    .btn-star   { font-size: 12px; padding: 5px 10px; }
+    .btn-star.off { background: transparent; color: var(--faint); border: 1px solid var(--border); }
+    .btn-star.off:hover { border-color: var(--amber2); color: var(--amber2); }
+    .btn-star.on  { background: rgba(232,168,76,0.15); color: var(--amber); border: 1px solid #7a5a28; }
+
+    /* ── DRAW CARD ── */
+    .draw-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px; margin-bottom: 18px;
+    }
+    .draw-label { font-size: 11px; color: var(--faint); letter-spacing: 2px; margin-bottom: 10px; }
+    #question {
+      font-size: 18px; font-weight: 600; color: var(--amber);
+      min-height: 28px; line-height: 1.7; transition: opacity .2s, transform .2s;
+    }
+    #question.flash { opacity: 0; transform: translateY(-4px); }
+    #question.placeholder { color: var(--faint); font-weight: 400; font-style: italic; font-size: 14px; }
+    .draw-meta { font-size: 11px; color: var(--faint); margin-top: 6px; min-height: 16px; }
+    .draw-btns { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+    .mastery-btns { display: none; gap: 8px; margin-top: 10px; align-items: center; }
+    .mastery-btns.show { display: flex; }
+    .mastery-label { font-size: 11px; color: var(--faint); }
+
+    /* ── CATEGORY BAR ── */
+    .cat-section { margin-bottom: 14px; }
+    .cat-section-title {
+      font-size: 11px; color: var(--faint); letter-spacing: 1.5px;
+      margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+    }
+    .cat-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .cat-chip {
+      padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--bg3); color: var(--dim);
+      transition: all .15s; white-space: nowrap;
+    }
+    .cat-chip:hover { border-color: var(--amber2); color: var(--amber); }
+    .cat-chip.active { background: rgba(232,168,76,0.15); color: var(--amber); border-color: #7a5a28; }
+    .cat-chip.all { border-style: dashed; }
+    .add-cat-btn {
+      padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer;
+      border: 1px dashed var(--border); background: transparent; color: var(--faint);
+      font-family: inherit; transition: all .15s;
+    }
+    .add-cat-btn:hover { border-color: var(--amber2); color: var(--amber2); }
+
+    /* ── ADD AREA ── */
+    .add-area { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .add-area-title { font-size: 11px; color: var(--faint); letter-spacing: 1.5px; margin-bottom: 10px; }
+    .add-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .add-row input, .add-row select {
+      flex: 1; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px; color: var(--text);
+      font-size: 13px; outline: none; font-family: inherit; transition: border-color .2s;
+    }
+    .add-row select { flex: 0 0 auto; max-width: 140px; cursor: pointer; }
+    .add-row input:focus, .add-row select:focus { border-color: var(--amber2); }
+    .add-row input::placeholder { color: var(--faint); }
+    .add-row input.shake { border-color: var(--red); animation: shake .4s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 60%{transform:translateX(5px)} }
+
+    /* ── BATCH ── */
+    .batch-toggle {
+      display: flex; align-items: center; gap: 7px;
+      cursor: pointer; user-select: none; margin-bottom: 8px;
+    }
+    .batch-toggle .arrow { font-size: 10px; color: var(--faint); transition: transform .2s; display: inline-block; }
+    .batch-toggle .arrow.open { transform: rotate(90deg); }
+    .batch-toggle .label { font-size: 12px; color: var(--dim); }
+    .batch-box { display: none; }
+    .batch-box.show { display: block; }
+    .batch-hint { font-size: 12px; color: var(--faint); margin-bottom: 8px; }
+    .batch-box textarea {
+      width: 100%; height: 100px; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 9px 12px; color: var(--text); font-size: 13px;
+      font-family: inherit; outline: none; resize: vertical; line-height: 1.7;
+    }
+    .batch-box textarea:focus { border-color: var(--amber2); }
+    .batch-box textarea::placeholder { color: var(--faint); }
+    .batch-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; gap: 8px; flex-wrap: wrap; }
+    .batch-preview { font-size: 11px; color: var(--faint); }
+    .batch-preview b { color: var(--amber2); }
+    .batch-cat-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .batch-cat-row label { font-size: 12px; color: var(--faint); }
+    .batch-cat-row select {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+      padding: 5px 10px; color: var(--text); font-size: 12px; font-family: inherit; outline: none;
+    }
+
+    /* ── STATS ── */
+    .stats { display: flex; gap: 6px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
+    .chip { font-size: 11px; color: var(--dim); background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 3px 12px; }
+    .chip b { color: var(--amber2); font-weight: 600; }
+
+    /* ── TOOLBAR ── */
+    .toolbar { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+
+    /* ── TABS ── */
+    .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .tab-btn {
+      background: none; border: none; border-bottom: 2px solid transparent;
+      color: var(--faint); font-size: 13px; padding: 7px 16px 9px;
+      cursor: pointer; margin-bottom: -1px; font-family: inherit; transition: color .15s;
+    }
+    .tab-btn.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+    /* ── FILTERS ── */
+    .filters { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+    .filters input {
+      flex: 1; min-width: 140px; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px; color: var(--text);
+      font-size: 13px; outline: none; font-family: inherit;
+    }
+    .filters input::placeholder { color: var(--faint); }
+    .filter-select {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 10px; color: var(--dim); font-size: 12px; font-family: inherit; outline: none; cursor: pointer;
+    }
+
+    /* ── LIST ── */
+    .list-scroll { max-height: 400px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    .list-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 10px 4px; border-bottom: 1px solid rgba(61,52,42,0.4);
+      animation: fadein .18s ease;
+    }
+    @keyframes fadein { from{opacity:0;transform:translateY(3px)} to{opacity:1} }
+    .list-item:last-child { border-bottom: none; }
+    .item-left { display: flex; flex-direction: column; gap: 4px; min-width: 24px; align-items: center; padding-top: 2px; }
+    .item-num  { font-size: 11px; color: var(--faint); }
+    .mastery-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+    .mastery-dot.know { background: var(--green); }
+    .mastery-dot.dontknow { background: var(--red); }
+    .item-body { flex: 1; min-width: 0; }
+    .item-text { font-size: 14px; line-height: 1.5; word-break: break-all; }
+    .item-text.starred { color: var(--amber); }
+    .item-text-edit {
+      width: 100%; background: var(--bg3); border: 1px solid var(--amber2);
+      border-radius: 6px; padding: 5px 8px; color: var(--text);
+      font-size: 14px; font-family: inherit; outline: none; line-height: 1.5;
+    }
+    .item-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+    .item-tag {
+      font-size: 10px; padding: 2px 8px; border-radius: 10px;
+      background: var(--bg3); border: 1px solid var(--border); color: var(--faint);
+    }
+    .item-meta { font-size: 10px; color: var(--faint); margin-top: 4px; }
+    .item-actions { display: flex; gap: 5px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+    .empty { text-align: center; padding: 40px 0; color: var(--faint); font-size: 13px; letter-spacing: 1px; }
+
+    /* ── MODAL ── */
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 20px;
+    }
+    .modal-bg.hide { display: none; }
+    .modal {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 22px; max-width: 420px; width: 100%;
+    }
+    .modal h3 { font-size: 16px; color: var(--amber); margin-bottom: 14px; }
+    .modal input, .modal textarea {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px; color: var(--text);
+      font-size: 13px; font-family: inherit; outline: none; margin-bottom: 10px;
+    }
+    .modal input:focus, .modal textarea:focus { border-color: var(--amber2); }
+    .modal textarea { height: 80px; resize: vertical; }
+    .modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+    .modal p { font-size: 13px; color: var(--dim); margin-bottom: 14px; line-height: 1.6; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--amber); font-size: 13px; padding: 10px 22px;
+      border-radius: 30px; opacity: 0; pointer-events: none;
+      transition: opacity .25s, transform .25s; white-space: nowrap; z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .hide { display: none !important; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { margin-bottom: 14px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--faint); margin-bottom: 5px; }
+    .progress-bar { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--amber)); border-radius: 2px; transition: width .4s; }
+
+    /* ── MULTI-SELECT MODE ── */
+    .list-item.selectable { cursor: pointer; }
+    .list-item.selectable:hover { background: rgba(232,168,76,0.04); }
+    .list-item.selected { background: rgba(232,168,76,0.09) !important; border-left: 2px solid var(--amber2); }
+    .item-checkbox {
+      width: 18px; height: 18px; border-radius: 5px;
+      border: 1.5px solid var(--border); background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all .15s; margin-top: 2px;
+    }
+    .list-item.selected .item-checkbox { background: var(--amber); border-color: var(--amber); }
+    .item-checkbox::after { content:''; display:none; width:5px; height:9px; border:2px solid #1a1612; border-top:none; border-left:none; transform:rotate(45deg); margin-top:-2px; }
+    .list-item.selected .item-checkbox::after { display:block; }
+
+    /* select-mode bar at top of list */
+    .select-bar {
+      display: none; align-items: center; justify-content: space-between;
+      padding: 8px 4px; margin-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .select-bar.show { display: flex; }
+    .select-bar-left { display: flex; align-items: center; gap: 10px; }
+    .select-count { font-size: 12px; color: var(--amber2); }
+    .select-all-btn { font-size: 12px; color: var(--faint); cursor: pointer; }
+    .select-all-btn:hover { color: var(--amber); }
+
+    /* ── BATCH ACTION FLOAT BAR ── */
+    .batch-action-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 12px 20px; display: none;
+      align-items: center; justify-content: space-between;
+      z-index: 200; gap: 10px;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.35);
+    }
+    .batch-action-bar.show { display: flex; }
+    .batch-action-info { font-size: 13px; color: var(--dim); }
+    .batch-action-info b { color: var(--amber); }
+    .batch-action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* ── DRAW COUNT MODAL ── */
+    .draw-count-hint {
+      font-size: 10px; color: var(--faint); margin-top: 4px; text-align: right;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div>
+      <h1>📚 西综抽题</h1>
+      <p>考研备考 · 分类复习</p>
+    </div>
+    <div class="save-badge ok" id="saveBadge">💾 就绪</div>
+  </header>
+
+  <!-- DRAW CARD -->
+  <div class="draw-card">
+    <div class="draw-label">当前题目</div>
+    <div id="question" class="placeholder">点击下方按钮开始抽题</div>
+    <div class="draw-meta" id="drawMeta"></div>
+    <div class="draw-btns">
+      <button class="btn btn-amber" id="btnDraw"
+        onclick="draw()"
+        onmousedown="startLongPress(event,'draw')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
+        ontouchstart="startLongPress(event,'draw')" ontouchend="cancelLongPress()" ontouchcancel="cancelLongPress()">🎲 随机抽题</button>
+      <button class="btn btn-outline" onclick="drawStar()">⭐ 抽收藏题</button>
+      <button class="btn btn-ghost btn-sm" onclick="drawWeak()">🎯 抽薄弱题</button>
+    </div>
+    <div class="draw-count-hint" id="drawCountHint"></div>
+    <div class="mastery-btns" id="masteryBtns">
+      <span class="mastery-label">这道题：</span>
+      <button class="btn btn-green btn-sm" onclick="markMastery(true)">✅ 我会了</button>
+      <button class="btn btn-red btn-sm" onclick="markMastery(false)">❌ 还不会</button>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>掌握进度</span>
+      <span id="progressText">0 / 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- CATEGORY BAR -->
+  <div class="cat-section">
+    <div class="cat-section-title">
+      科目 / 章节
+      <button class="add-cat-btn" onclick="showAddCatModal()">＋ 新建分类</button>
+    </div>
+    <div class="cat-bar" id="catBar"></div>
+  </div>
+
+  <!-- ADD AREA -->
+  <div class="add-area">
+    <div class="add-area-title">添加题目</div>
+    <div class="add-row">
+      <input id="newQ" placeholder="输入题目，按 Enter 添加" onkeydown="if(event.key==='Enter') addOne()">
+      <select id="addCatSel"></select>
+      <button class="btn btn-ghost" onclick="addOne()">+ 添加</button>
+    </div>
+
+    <!-- BATCH -->
+    <div class="batch-toggle" onclick="toggleBatch()">
+      <span class="arrow" id="batchArrow">▶</span>
+      <span class="label">📋 批量导入（每行一题）</span>
+    </div>
+    <div class="batch-box" id="batchBox">
+      <p class="batch-hint">每行一道题，空行跳过，重复自动去重</p>
+      <textarea id="batchTA" placeholder="心室肌细胞动作电位分期&#10;血压调节的短期机制&#10;肾小球滤过率的影响因素" oninput="updatePreview()"></textarea>
+      <div class="batch-cat-row">
+        <label>导入到：</label>
+        <select id="batchCatSel"></select>
+      </div>
+      <div class="batch-footer">
+        <div class="batch-preview">识别到 <b id="previewN">0</b> 道题</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="clearBatch()">清空</button>
+          <button class="btn btn-amber btn-sm" onclick="batchAdd()">✅ 一键导入</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="chip">全部 <b id="cAll">0</b></div>
+    <div class="chip">⭐ <b id="cStar">0</b></div>
+    <div class="chip">✅ 已掌握 <b id="cKnow">0</b></div>
+    <div class="chip">❌ 薄弱 <b id="cWeak">0</b></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <button class="btn btn-ghost btn-sm" onclick="exportData()">📤 导出备份</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importFile').click()">📥 导入备份</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn btn-ghost btn-sm" onclick="exportTxt()">📄 导出 txt</button>
+    <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="clearAll()">🗑 清空题库</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tabAll"  onclick="switchTab('all')">📖 全部</button>
+    <button class="tab-btn"        id="tabStar" onclick="switchTab('star')">⭐ 收藏</button>
+    <button class="tab-btn"        id="tabWeak" onclick="switchTab('weak')">❌ 薄弱</button>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <input id="searchInput" placeholder="🔍 搜索关键词" oninput="renderList()">
+    <select class="filter-select" id="filterCat" onchange="renderList()">
+      <option value="">全部分类</option>
+    </select>
+  </div>
+
+  <!-- LIST -->
+  <div id="listBox">
+    <div class="select-bar" id="selectBar">
+      <div class="select-bar-left">
+        <span class="select-count" id="selectCount">已选 0 项</span>
+        <span class="select-all-btn" onclick="toggleSelectAll()">全选</span>
+        <span class="select-all-btn" onclick="exitSelectMode()">取消</span>
+      </div>
+      <span style="font-size:11px;color:var(--faint);">长按列表项进入多选</span>
+    </div>
+    <div class="list-scroll" id="listInner"></div>
+  </div>
+
+</div>
+
+<!-- BATCH ACTION FLOAT BAR -->
+<div class="batch-action-bar" id="batchActionBar">
+  <div class="batch-action-info">已选 <b id="batchSelCount">0</b> 道题</div>
+  <div class="batch-action-btns">
+    <button class="btn btn-ghost btn-sm" onclick="batchExportTxt()">📄 导出 txt</button>
+    <button class="btn btn-ghost btn-sm" onclick="batchExportJson()">📤 导出 JSON</button>
+    <button class="btn btn-red btn-sm" onclick="batchDelete()">🗑 删除</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL: 抽题设置（长按触发）-->
+<div class="modal-bg hide" id="modalDrawSettings">
+  <div class="modal">
+    <h3>⚙️ 抽题设置</h3>
+    <p style="margin-bottom:10px;">每次点击"随机抽题"连续抽取几道</p>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <button class="btn btn-ghost" onclick="adjustDrawCount(-1)" style="padding:6px 14px;font-size:16px;">－</button>
+      <span id="drawCountDisplay" style="font-size:22px;color:var(--amber);font-weight:700;min-width:32px;text-align:center;">1</span>
+      <button class="btn btn-ghost" onclick="adjustDrawCount(1)" style="padding:6px 14px;font-size:16px;">＋</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal('modalDrawSettings')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 新建分类 -->
+<div class="modal-bg hide" id="modalCat">
+  <div class="modal">
+    <h3>新建分类</h3>
+    <input id="newCatName" placeholder="例如：生理学 · 心血管" onkeydown="if(event.key==='Enter') confirmAddCat()">
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal('modalCat')">取消</button>
+      <button class="btn btn-amber" onclick="confirmAddCat()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 编辑题目 -->
+<div class="modal-bg hide" id="modalEdit">
+  <div class="modal">
+    <h3>编辑题目</h3>
+    <textarea id="editText" placeholder="题目内容"></textarea>
+    <select id="editCat" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:10px;"></select>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal('modalEdit')">取消</button>
+      <button class="btn btn-amber" onclick="confirmEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 删除分类 -->
+<div class="modal-bg hide" id="modalDelCat">
+  <div class="modal">
+    <h3>删除分类</h3>
+    <p id="delCatMsg"></p>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal('modalDelCat')">取消</button>
+      <button class="btn btn-red" onclick="confirmDelCat()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORE_KEY = 'xizong_v3';
+
+// 数据结构
+// questions: [{text, cat, star, mastery(null/true/false), count, lastSeen}]
+// categories: [{id, name}]
+
+let data = { questions: [], categories: [] };
+let curTab = 'all';
+let curCat = '';         // 当前筛选分类（抽题用）
+let curDrawIdx = null;   // 当前抽到的题目索引
+let batchOpen = false;
+let editingIdx = null;
+let selectMode = false;  // 多选模式
+let selectedSet = new Set(); // 选中的题目索引（data.questions 原始索引）
+let drawCount = 1;       // 每次连续抽题数
+let longPressTimer = null;
+let longPressFired = false;
+let delCatId = null;
+
+/* ── 持久化 ── */
+function save() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+  const b = document.getElementById('saveBadge');
+  b.textContent = '💾 已保存'; b.className = 'save-badge ok';
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) data = JSON.parse(raw);
+    // 兼容旧版数据
+    if (!data.categories) data.categories = [];
+    if (!data.questions) data.questions = [];
+    data.questions.forEach(q => {
+      if (q.star === undefined) q.star = false;
+      if (q.mastery === undefined) q.mastery = null;
+      if (q.count === undefined) q.count = 0;
+      if (q.lastSeen === undefined) q.lastSeen = null;
+      if (q.cat === undefined) q.cat = '';
+    });
+  } catch(e) { data = { questions: [], categories: [] }; }
+}
+
+/* ── TOAST ── */
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ── UTILS ── */
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function catName(id) {
+  if (!id) return '未分类';
+  const c = data.categories.find(c => c.id === id);
+  return c ? c.name : '未分类';
+}
+function closeModal(id) { document.getElementById(id).classList.add('hide'); }
+
+/* ── STATS & PROGRESS ── */
+function updateStats() {
+  const qs = data.questions;
+  document.getElementById('cAll').textContent  = qs.length;
+  document.getElementById('cStar').textContent = qs.filter(q=>q.star).length;
+  const know = qs.filter(q=>q.mastery===true).length;
+  const weak = qs.filter(q=>q.mastery===false).length;
+  document.getElementById('cKnow').textContent = know;
+  document.getElementById('cWeak').textContent = weak;
+  const rated = qs.filter(q=>q.mastery!==null).length;
+  document.getElementById('progressText').textContent = `${know} / ${qs.length}`;
+  document.getElementById('progressFill').style.width = qs.length ? (know/qs.length*100)+'%' : '0%';
+}
+
+/* ── CATEGORY UI ── */
+function renderCatBar() {
+  const bar = document.getElementById('catBar');
+  let html = `<div class="cat-chip all ${curCat===''?'active':''}" onclick="selectCat('')">全部</div>`;
+  data.categories.forEach(c => {
+    const cnt = data.questions.filter(q=>q.cat===c.id).length;
+    html += `<div class="cat-chip ${curCat===c.id?'active':''}" onclick="selectCat('${c.id}')">
+      ${esc(c.name)} <span style="opacity:.5;font-size:10px;">${cnt}</span>
+      <span style="margin-left:4px;opacity:.3;font-size:10px;cursor:pointer;" onclick="event.stopPropagation();askDelCat('${c.id}')">✕</span>
+    </div>`;
+  });
+  bar.innerHTML = html;
+  updateCatSelects();
+}
+
+function updateCatSelects() {
+  const opts = `<option value="">未分类</option>` +
+    data.categories.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  ['addCatSel','batchCatSel','filterCat','editCat'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const prev = el.value;
+    if (id === 'filterCat') {
+      el.innerHTML = `<option value="">全部分类</option>` +
+        data.categories.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    } else {
+      el.innerHTML = opts;
+    }
+    el.value = prev;
+  });
+}
+
+function selectCat(id) {
+  curCat = id;
+  renderCatBar();
+  renderList();
+}
+
+/* ── ADD CATEGORY ── */
+function showAddCatModal() {
+  document.getElementById('newCatName').value = '';
+  document.getElementById('modalCat').classList.remove('hide');
+  setTimeout(() => document.getElementById('newCatName').focus(), 50);
+}
+function confirmAddCat() {
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name) return;
+  if (data.categories.find(c=>c.name===name)) { toast('⚠️ 该分类已存在'); return; }
+  data.categories.push({ id: genId(), name });
+  save(); renderCatBar(); closeModal('modalCat');
+  toast(`✅ 已创建「${name}」`);
+}
+
+/* ── DELETE CATEGORY ── */
+function askDelCat(id) {
+  delCatId = id;
+  const c = data.categories.find(c=>c.id===id);
+  const cnt = data.questions.filter(q=>q.cat===id).length;
+  document.getElementById('delCatMsg').textContent =
+    `确定删除分类「${c.name}」吗？该分类下的 ${cnt} 道题将变为「未分类」，题目本身不会删除。`;
+  document.getElementById('modalDelCat').classList.remove('hide');
+}
+function confirmDelCat() {
+  data.categories = data.categories.filter(c=>c.id!==delCatId);
+  data.questions.forEach(q=>{ if(q.cat===delCatId) q.cat=''; });
+  if (curCat === delCatId) curCat = '';
+  save(); renderCatBar(); renderList(); closeModal('modalDelCat');
+  toast('🗑 分类已删除');
+}
+
+/* ── ADD ONE ── */
+function addOne() {
+  const el = document.getElementById('newQ');
+  const q  = el.value.trim();
+  if (!q) { el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),500); return; }
+  const cat = document.getElementById('addCatSel').value;
+  data.questions.push({ text:q, cat, star:false, mastery:null, count:0, lastSeen:null });
+  el.value = ''; el.focus();
+  save(); renderCatBar(); renderList(); updateStats();
+  toast('✅ 已添加');
+}
+
+/* ── BATCH ── */
+function toggleBatch() {
+  batchOpen = !batchOpen;
+  document.getElementById('batchBox').classList.toggle('show', batchOpen);
+  document.getElementById('batchArrow').classList.toggle('open', batchOpen);
+}
+function parseBatch() {
+  return document.getElementById('batchTA').value.split('\n').map(s=>s.trim()).filter(s=>s);
+}
+function updatePreview() { document.getElementById('previewN').textContent = parseBatch().length; }
+function clearBatch() { document.getElementById('batchTA').value=''; updatePreview(); }
+function batchAdd() {
+  const lines = parseBatch();
+  if (!lines.length) { toast('⚠️ 没有识别到题目'); return; }
+  const cat = document.getElementById('batchCatSel').value;
+  const existing = new Set(data.questions.map(q=>q.text));
+  let added=0, dup=0;
+  lines.forEach(text => {
+    if (!existing.has(text)) {
+      data.questions.push({ text, cat, star:false, mastery:null, count:0, lastSeen:null });
+      existing.add(text); added++;
+    } else dup++;
+  });
+  save(); renderCatBar(); renderList(); updateStats();
+  document.getElementById('batchTA').value=''; updatePreview();
+  toast(dup>0 ? `✅ 导入 ${added} 道，跳过 ${dup} 重复` : `✅ 成功导入 ${added} 道题`);
+}
+
+/* ── RENDER LIST ── */
+function getFilteredQuestions() {
+  const key = document.getElementById('searchInput').value.toLowerCase();
+  const fc  = document.getElementById('filterCat').value;
+  return data.questions.map((q,i)=>({q,i})).filter(({q}) => {
+    if (curTab==='star' && !q.star) return false;
+    if (curTab==='weak' && q.mastery!==false) return false;
+    if (fc && q.cat!==fc) return false;
+    if (key && !q.text.toLowerCase().includes(key)) return false;
+    return true;
+  });
+}
+
+function renderList() {
+  const items = getFilteredQuestions();
+  let html = '';
+  items.forEach(({q,i}) => {
+    const dotClass = q.mastery===true?'know':q.mastery===false?'dontknow':'';
+    const meta = [
+      q.count>0 ? `被抽 ${q.count} 次` : '',
+      q.lastSeen ? `上次：${q.lastSeen}` : ''
+    ].filter(Boolean).join(' · ');
+    const isSel = selectedSet.has(i);
+    html += `<div class="list-item${selectMode?' selectable':''}${isSel?' selected':''}" id="listItem_${i}"
+      onclick="onItemClick(event,${i})"
+      onmousedown="startItemLongPress(event,${i})" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
+      ontouchstart="startItemLongPress(event,${i})" ontouchend="cancelLongPress()" ontouchcancel="cancelLongPress()">
+      ${selectMode ? `<div class="item-checkbox"></div>` : `
+      <div class="item-left">
+        <span class="item-num">${String(i+1).padStart(2,'0')}</span>
+        <div class="mastery-dot ${dotClass}" title="${q.mastery===true?'已掌握':q.mastery===false?'薄弱':'未评估'}"></div>
+      </div>`}
+      <div class="item-body">
+        <div class="item-text ${q.star?'starred':''}" id="itemText_${i}">${esc(q.text)}</div>
+        <div class="item-tags">
+          <span class="item-tag">${esc(catName(q.cat))}</span>
+        </div>
+        ${meta ? `<div class="item-meta">${meta}</div>` : ''}
+      </div>
+      ${selectMode ? '' : `
+      <div class="item-actions">
+        <button class="btn btn-star ${q.star?'on':'off'} btn-xs" onclick="event.stopPropagation();toggleStar(${i})">${q.star?'⭐':'☆'}</button>
+        <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();showEdit(${i})">✏️</button>
+        <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();delOne(${i})">删</button>
+      </div>`}
+    </div>`;
+  });
+  document.getElementById('listInner').innerHTML =
+    html || `<div class="empty">${data.questions.length===0?'题库还是空的，快去添加吧 🩺':'没有符合条件的题目'}</div>`;
+  updateSelectBar();
+  updateStats();
+}
+
+/* ── TOGGLE STAR ── */
+function toggleStar(i) {
+  data.questions[i].star = !data.questions[i].star;
+  save(); renderList();
+}
+
+/* ── DELETE ── */
+function delOne(i) {
+  data.questions.splice(i,1);
+  save(); renderCatBar(); renderList(); updateStats();
+}
+
+/* ── EDIT ── */
+function showEdit(i) {
+  editingIdx = i;
+  const q = data.questions[i];
+  document.getElementById('editText').value = q.text;
+  updateCatSelects();
+  document.getElementById('editCat').value = q.cat || '';
+  document.getElementById('modalEdit').classList.remove('hide');
+  setTimeout(()=>document.getElementById('editText').focus(),50);
+}
+function confirmEdit() {
+  const text = document.getElementById('editText').value.trim();
+  if (!text) return;
+  data.questions[editingIdx].text = text;
+  data.questions[editingIdx].cat  = document.getElementById('editCat').value;
+  save(); renderCatBar(); renderList(); closeModal('modalEdit');
+  toast('✅ 已保存');
+}
+
+/* ── CLEAR ALL ── */
+function clearAll() {
+  if (!data.questions.length) { toast('⚠️ 题库已经是空的'); return; }
+  if (!confirm(`确定清空全部 ${data.questions.length} 道题吗？此操作不可撤销。`)) return;
+  data.questions = [];
+  save(); renderCatBar(); renderList(); updateStats();
+  toast('🗑 题库已清空');
+}
+
+/* ── MULTI-SELECT ── */
+function enterSelectMode(firstIdx) {
+  selectMode = true;
+  selectedSet.clear();
+  if (firstIdx !== undefined) selectedSet.add(firstIdx);
+  renderList();
+  toast('📌 多选模式：点击题目选中，完成后使用底部操作栏');
+}
+function exitSelectMode() {
+  selectMode = false;
+  selectedSet.clear();
+  renderList();
+  document.getElementById('batchActionBar').classList.remove('show');
+}
+function onItemClick(e, idx) {
+  if (!selectMode) return;
+  e.stopPropagation();
+  if (selectedSet.has(idx)) selectedSet.delete(idx);
+  else selectedSet.add(idx);
+  updateSelectBar();
+  // 更新这一项的视觉状态
+  const el = document.getElementById(`listItem_${idx}`);
+  if (el) el.classList.toggle('selected', selectedSet.has(idx));
+  const cb = el && el.querySelector('.item-checkbox');
+  // checkbox 通过 CSS .selected 驱动，无需额外操作
+}
+function toggleSelectAll() {
+  const items = getFilteredQuestions();
+  const allSel = items.every(({i}) => selectedSet.has(i));
+  if (allSel) items.forEach(({i}) => selectedSet.delete(i));
+  else items.forEach(({i}) => selectedSet.add(i));
+  renderList();
+}
+function updateSelectBar() {
+  const n = selectedSet.size;
+  document.getElementById('selectBar').classList.toggle('show', selectMode);
+  document.getElementById('selectCount').textContent = `已选 ${n} 项`;
+  document.getElementById('batchSelCount').textContent = n;
+  document.getElementById('batchActionBar').classList.toggle('show', selectMode && n > 0);
+}
+
+/* ── BATCH ACTIONS ── */
+function batchDelete() {
+  if (!selectedSet.size) return;
+  if (!confirm(`确定删除选中的 ${selectedSet.size} 道题吗？`)) return;
+  // 从大到小删，避免索引偏移
+  const sorted = [...selectedSet].sort((a,b)=>b-a);
+  sorted.forEach(i => data.questions.splice(i,1));
+  exitSelectMode();
+  save(); renderCatBar(); renderList(); updateStats();
+  toast(`🗑 已删除 ${sorted.length} 道题`);
+}
+function batchExportTxt() {
+  if (!selectedSet.size) return;
+  const lines = [...selectedSet].sort((a,b)=>a-b).map(i => data.questions[i].text);
+  const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `西综选中题目_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click(); toast(`📄 已导出 ${lines.length} 道题 (txt)`);
+}
+function batchExportJson() {
+  if (!selectedSet.size) return;
+  const qs = [...selectedSet].sort((a,b)=>a-b).map(i => data.questions[i]);
+  const out = { questions: qs, categories: data.categories };
+  const blob = new Blob([JSON.stringify(out,null,2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `西综选中题目_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); toast(`📤 已导出 ${qs.length} 道题 (json)`);
+}
+
+/* ── LONG PRESS ── */
+function startLongPress(e, target) {
+  longPressFired = false;
+  longPressTimer = setTimeout(() => {
+    longPressFired = true;
+    if (target === 'draw') {
+      document.getElementById('drawCountDisplay').textContent = drawCount;
+      document.getElementById('modalDrawSettings').classList.remove('hide');
+    }
+  }, 600);
+}
+function startItemLongPress(e, idx) {
+  if (selectMode) return; // 已在多选模式就普通点击
+  longPressFired = false;
+  longPressTimer = setTimeout(() => {
+    longPressFired = true;
+    enterSelectMode(idx);
+  }, 500);
+}
+function cancelLongPress() {
+  clearTimeout(longPressTimer);
+}
+
+/* ── DRAW COUNT ── */
+function adjustDrawCount(delta) {
+  drawCount = Math.max(1, Math.min(10, drawCount + delta));
+  document.getElementById('drawCountDisplay').textContent = drawCount;
+  updateDrawCountHint();
+}
+function updateDrawCountHint() {
+  const hint = document.getElementById('drawCountHint');
+  hint.textContent = drawCount > 1 ? `连续抽 ${drawCount} 题模式（长按按钮可修改）` : '';
+}
+
+/* ── DRAW ── */
+function getPool(mode) {
+  let pool = data.questions.map((q,i)=>({q,i}));
+  if (curCat) pool = pool.filter(({q})=>q.cat===curCat);
+  if (mode==='star') pool = pool.filter(({q})=>q.star);
+  if (mode==='weak') pool = pool.filter(({q})=>q.mastery===false);
+  return pool;
+}
+
+function pickWeighted(pool) {
+  // 薄弱题权重 3，未评估权重 2，已掌握权重 1
+  const weights = pool.map(({q}) => q.mastery===false?3 : q.mastery===null?2 : 1);
+  const total = weights.reduce((a,b)=>a+b,0);
+  let r = Math.random()*total;
+  for (let i=0;i<pool.length;i++) { r-=weights[i]; if(r<=0) return pool[i]; }
+  return pool[pool.length-1];
+}
+
+function flashDraw({q,i}) {
+  curDrawIdx = i;
+  const el = document.getElementById('question');
+  el.classList.add('flash');
+  setTimeout(()=>{
+    el.textContent = q.text;
+    el.classList.remove('flash','placeholder');
+    document.getElementById('drawMeta').textContent =
+      [catName(q.cat), q.count>0?`已抽 ${q.count} 次`:''].filter(Boolean).join(' · ');
+    document.getElementById('masteryBtns').classList.add('show');
+  },200);
+  data.questions[i].count++;
+  data.questions[i].lastSeen = new Date().toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'});
+  save(); renderList();
+}
+
+function draw() {
+  if (longPressFired) { longPressFired = false; return; } // 长按已触发设置，跳过点击
+  const pool = getPool('all');
+  if (!pool.length) { toast('⚠️ 没有可用题目！'); return; }
+  if (drawCount === 1) {
+    flashDraw(pickWeighted(pool));
+  } else {
+    // 连续抽 drawCount 题，依次 flash，间隔350ms
+    let remaining = Math.min(drawCount, pool.length);
+    const usedIdx = new Set();
+    const picks = [];
+    for (let n = 0; n < remaining; n++) {
+      const available = pool.filter(({i}) => !usedIdx.has(i));
+      if (!available.length) break;
+      const pick = pickWeighted(available);
+      picks.push(pick);
+      usedIdx.add(pick.i);
+    }
+    picks.forEach((pick, n) => {
+      setTimeout(() => flashDraw(pick), n * 400);
+    });
+  }
+}
+function drawStar() {
+  const pool = getPool('star');
+  if (!pool.length) { toast('⚠️ 当前筛选下没有收藏题！'); return; }
+  flashDraw(pool[Math.floor(Math.random()*pool.length)]);
+}
+function drawWeak() {
+  const pool = getPool('weak');
+  if (!pool.length) { toast('⚠️ 暂无薄弱题，快去标记吧！'); return; }
+  flashDraw(pool[Math.floor(Math.random()*pool.length)]);
+}
+
+/* ── MASTERY ── */
+function markMastery(val) {
+  if (curDrawIdx===null) return;
+  data.questions[curDrawIdx].mastery = val;
+  save(); renderList(); updateStats();
+  toast(val ? '✅ 已标记为掌握' : '❌ 已标记为薄弱');
+}
+
+/* ── TABS ── */
+function switchTab(tab) {
+  curTab = tab;
+  ['all','star','weak'].forEach(t => {
+    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1))
+      .classList.toggle('active', t===tab);
+  });
+  renderList();
+}
+
+/* ── EXPORT / IMPORT ── */
+function exportData() {
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `西综抽题备份_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); toast('📤 已导出 JSON 备份');
+}
+function exportTxt() {
+  const lines = [];
+  data.categories.forEach(c => {
+    const qs = data.questions.filter(q=>q.cat===c.id);
+    if (qs.length) { lines.push(`=== ${c.name} ===`); qs.forEach(q=>lines.push(q.text)); lines.push(''); }
+  });
+  const uncat = data.questions.filter(q=>!q.cat);
+  if (uncat.length) { lines.push('=== 未分类 ==='); uncat.forEach(q=>lines.push(q.text)); }
+  const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `西综题库_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click(); toast('📄 已导出 TXT');
+}
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) { toast('⚠️ 未选中文件'); return; }
+  // iOS Safari 有时 FileReader 静默失败，改用 text() 方法兜底
+  const doImport = (text) => {
+    try {
+      if (!text || !text.trim()) throw new Error('empty');
+      const imported = JSON.parse(text);
+      if (!imported.questions) throw new Error('no questions');
+      if (!confirm(`导入将合并数据，共 ${imported.questions.length} 道题。继续吗？`)) return;
+      const catMap = {};
+      (imported.categories||[]).forEach(c => {
+        const exist = data.categories.find(x=>x.name===c.name);
+        catMap[c.id] = exist ? exist.id : (() => { const id=genId(); data.categories.push({id,name:c.name}); return id; })();
+      });
+      const existing = new Set(data.questions.map(q=>q.text));
+      let added=0;
+      imported.questions.forEach(q => {
+        if (!existing.has(q.text)) {
+          data.questions.push({...q, cat: catMap[q.cat]||q.cat||''});
+          existing.add(q.text); added++;
+        }
+      });
+      save(); renderCatBar(); renderList(); updateStats();
+      toast(`📥 已导入 ${added} 道题`);
+    } catch(err) {
+      toast('⚠️ 文件读取失败，请确认是 .json 备份文件');
+    }
+    e.target.value = '';
+  };
+
+  // 优先用现代 File.text()（iOS 14+ 支持更稳定）
+  if (file.text) {
+    file.text().then(doImport).catch(() => {
+      // 降级用 FileReader
+      const r = new FileReader();
+      r.onload = ev => doImport(ev.target.result);
+      r.onerror = () => toast('⚠️ 文件读取失败，请重试');
+      r.readAsText(file, 'utf-8');
+    });
+  } else {
+    const r = new FileReader();
+    r.onload = ev => doImport(ev.target.result);
+    r.onerror = () => toast('⚠️ 文件读取失败，请重试');
+    r.readAsText(file, 'utf-8');
+  }
+}
+
+/* ── INIT ── */
+load();
+renderCatBar();
+renderList();
+updateStats();
+updateDrawCountHint();
+if (data.questions.length>0) {
+  document.getElementById('saveBadge').textContent = `💾 已加载 ${data.questions.length} 题`;
+}
+// 点击空白处退出多选
+document.addEventListener('click', e => {
+  if (!selectMode) return;
+  if (e.target.closest('#listBox') || e.target.closest('#batchActionBar') || e.target.closest('#selectBar')) return;
+  exitSelectMode();
+});
+</script>
+</body>
+</html>
